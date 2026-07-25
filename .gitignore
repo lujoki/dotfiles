@@ -1,0 +1,6 @@
+.DS_Store
+*.bak
+*.backup-*
+
+# Contains credentials — see zed/settings.example.json
+zed/settings.json

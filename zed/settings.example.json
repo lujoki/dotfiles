@@ -1,0 +1,198 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette (cmd-shift-p / ctrl-shift-p)
+{
+  "proxy": "",
+  "edit_predictions": {
+    "allow_data_collection": "no",
+    "provider": "ollama"
+  },
+  "context_servers": {
+    "mcp-server-github": {
+      "enabled": true,
+      "remote": false,
+      "settings": {
+        "github_personal_access_token": "<your-github-pat>"
+      }
+    },
+    "linear": {
+      "enabled": true,
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.linear.app/mcp"],
+      "env": {}
+    }
+  },
+  "project_panel": {
+    "dock": "left"
+  },
+  "outline_panel": {
+    "dock": "left"
+  },
+  "collaboration_panel": {
+    "dock": "left"
+  },
+  "agent": {
+    "thinking_display": "preview",
+    "sandbox_permissions": {
+      "network_hosts": [
+        "cdn.simpleicons.org",
+        "zed.dev"
+      ]
+    },
+    "tool_permissions": {
+            "default": "allow",
+            "tools": {
+                  "terminal": {
+                        "default": "allow",
+                        "always_allow": [
+            {
+              "pattern": "^npm\\s+(install|i|ci|run|test|exec|outdated|list|ls|view|pack|publish|unpublish|version|cache|doctor|audit|fund|explain|query|rebuild|prune|dedupe|init|create|prefix|root|help)\\b"
+            },
+            {
+              "pattern": "^npx\\b"
+            },
+            {
+              "pattern": "^node\\b"
+            },
+            {
+              "pattern": "^pnpm\\b"
+            },
+            {
+              "pattern": "^yarn\\b"
+            },
+            {
+              "pattern": "^bun\\b"
+            },
+            {
+              "pattern": "^tsc\\b"
+            },
+            {
+              "pattern": "^vitest\\b"
+            },
+            {
+              "pattern": "^jest\\b"
+            },
+            {
+              "pattern": "^eslint\\b"
+            },
+            {
+              "pattern": "^prettier\\b"
+            },
+            {
+              "pattern": "^biome\\b"
+            },
+            {
+              "pattern": "^turbo\\b"
+            },
+            {
+              "pattern": "^nx\\b"
+            },
+            {
+              "pattern": "^git\\s+(?:(?:--no-pager|--paginate|--no-optional-locks|-p)\\s+|(?:-c|-C)\\s+\\S+\\s+)*(status|log|diff|show|blame)\\b"
+            },
+            {
+              "pattern": "^git\\s+(?:(?:--no-pager|--paginate|--no-optional-locks|-p)\\s+|(?:-c|-C)\\s+\\S+\\s+)*(rev-parse|describe|for-each-ref|show-ref|symbolic-ref|ls-files|ls-remote)\\b"
+            },
+            {
+              "pattern": "^git\\s+(?:(?:--no-pager|--paginate|--no-optional-locks|-p)\\s+|(?:-c|-C)\\s+\\S+\\s+)*(branch|switch|checkout|fetch|pull|add|restore|stash|commit)\\b"
+            },
+            {
+              "pattern": "^git\\s+(?:(?:--no-pager|--paginate|--no-optional-locks|-p)\\s+|(?:-c|-C)\\s+\\S+\\s+)*worktree\\s+(add|list|remove|prune)\\b"
+            },
+            {
+              "pattern": "^git\\s+(?:(?:--no-pager|--paginate|--no-optional-locks|-p)\\s+|(?:-c|-C)\\s+\\S+\\s+)*push\\b"
+            },
+            {
+              "pattern": "^git\\s+(?:(?:--no-pager|--paginate|--no-optional-locks|-p)\\s+|(?:-c|-C)\\s+\\S+\\s+)*remote\\s+get-url\\b"
+            },
+            {
+              "pattern": "^(ls|pwd|cat|head|tail|grep|rg|find|wc|sort|uniq|cut|awk|sed|xargs|which|file|stat|du|df|lsof|ps|echo|printf|mkdir|touch|cp|mv)\\b"
+            },
+            {
+              "pattern": "^curl\\b"
+            },
+            {
+              "pattern": "^git\\b"
+            },
+            {
+              "pattern": "^tail\\b"
+            },
+            {
+              "pattern": "^echo\\b"
+            },
+            {
+              "pattern": "^git\\s+merge-base(\\s|$)"
+            },
+            {
+              "pattern": "^echo\\s+YES(\\s|$)"
+            },
+            {
+              "pattern": "^echo\\s+NO(\\s|$)"
+            }
+          ],
+                        "always_confirm": [
+                              {
+                                    "pattern": "^sudo\\b"
+                              },
+                              {
+                                    "pattern": "^git\\s+(?:(?:--no-pager|--paginate|--no-optional-locks|-p)\\s+|(?:-c|-C)\\s+\\S+\\s+)*(rebase|reset|tag|merge|cherry-pick)\\b"
+                              },
+                              {
+                                    "pattern": "\\brm\\s+-rf\\b"
+                              },
+                              {
+                                    "pattern": "\\bchmod\\s+777\\b"
+                              }
+                        ]
+                  }
+            }
+      },
+    "default_profile": "ask",
+    "default_model": {
+      "provider": "anthropic",
+      "model": "claude-opus-5",
+      "enable_thinking": true,
+      "effort": "high"
+    },
+    "dock": "right",
+    "favorite_models": [
+      {
+        "provider": "ollama",
+        "model": "qwen3.5:4b",
+        "enable_thinking": true
+      },
+      {
+        "provider": "anthropic",
+        "model": "claude-opus-5",
+        "enable_thinking": true,
+        "effort": "high"
+      }
+    ],
+    "model_parameters": []
+  },
+  "git_panel": {
+    "dock": "left"
+  },
+  "terminal": {
+    "env": {
+      "FIG_NEW_SESSION": "\"1\""
+    }
+  },
+  "tab_size": 2,
+  "session": {
+    "trust_all_worktrees": true
+  },
+  "base_keymap": "VSCode",
+  "ui_font_size": 16,
+  "buffer_font_size": 15,
+  "theme": {
+    "mode": "system",
+    "light": "Ayu Light",
+    "dark": "Ayu Dark",
+  },
+}

@@ -22,23 +22,22 @@ The real files live in this repo. `~/.config/zed/` holds symlinks pointing back 
 git clone git@github.com:lujoki/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ./install.sh
+
+# Zed settings are untracked because they hold credentials,
+# so start from the committed reference copy:
+cp zed/settings.example.json zed/settings.json
+
+# fill in your credentials, then link it:
+./install.sh
 ```
 
-`install.sh` is idempotent — safe to re-run. If a real file already exists where a symlink should go, it is moved aside to `<name>.backup-<timestamp>` rather than overwritten.
+`install.sh` is idempotent — safe to re-run. It skips `settings.json` when that file does not exist yet, so the first run still links `AGENTS.md` rather than leaving a dangling symlink. If a real file already exists where a symlink should go, it is moved aside to `<name>.backup-<timestamp>` rather than overwritten.
 
 ## Zed settings
 
 The live `~/.config/zed/settings.json` is **not tracked** — it contains credentials such as the GitHub MCP personal access token. `zed/settings.example.json` is a committed reference copy with those values replaced by placeholders.
 
-To set up settings on a fresh machine:
-
-```bash
-cp ~/dotfiles/zed/settings.example.json ~/dotfiles/zed/settings.json
-# fill in your credentials
-./install.sh
-```
-
-`install.sh` symlinks `settings.json` only if it exists, so it is safe to run before you have created it — `AGENTS.md` will still be linked.
+When you add a new credential to your settings, mirror the change into `zed/settings.example.json` with a placeholder value, so the reference copy does not drift out of date.
 
 ## How agent rules resolve
 

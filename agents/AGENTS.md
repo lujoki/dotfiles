@@ -399,6 +399,17 @@ commit lands on a dead branch, no reviewer sees it, and it never reaches
 gh pr view <number> --repo <owner>/<repo> --json state,mergedAt
 ```
 
+**Check immediately before the push, not before the validation run.** A full
+test suite takes minutes, and that is long enough for somebody to merge the PR
+while it runs. A state check from the top of the turn is not evidence about the
+state at the moment of pushing, and reporting "it was open when I looked" is an
+excuse rather than an outcome. Re-read it as the last thing before the push, or
+make the check and the push a single command so nothing can land in between:
+
+```bash
+gh pr view <number> --repo <owner>/<repo> --json state --jq .state | grep -qx OPEN && git push
+```
+
 - **Open**: push to the same branch as normal
 - **Merged or closed**: that branch is finished. Branch fresh from the latest
   `main`, bring the change across with `git cherry-pick`, and open a **new**

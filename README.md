@@ -1,82 +1,52 @@
 # dotfiles
 
-Personal configuration, version controlled and symlinked into place.
-
-Currently covers [Zed](https://zed.dev) — the global agent rules and editor settings.
-
-## Structure
+Personal configuration, versioned so it survives a new machine.
 
 ```
-dotfiles/
-├── install.sh                 # Symlinks everything into place
-└── zed/
-    ├── AGENTS.md              # Global agent rules (all projects)
-    └── settings.example.json  # Reference Zed settings, credentials stripped
+agents/
+├── AGENTS.md   # standing agent instructions, applied to every project
+└── CLAUDE.md   # symlink -> AGENTS.md, so Claude Code and other tooling agree
 ```
 
-The real files live in this repo. `~/.config/zed/` holds symlinks pointing back here, so editing either path edits the same file and changes show up in `git status`.
-
-## Fresh machine setup
+## Install
 
 ```bash
-git clone git@github.com:lujoki/dotfiles.git ~/dotfiles
-cd ~/dotfiles
-./install.sh
-
-# Zed settings are untracked because they hold credentials,
-# so start from the committed reference copy:
-cp zed/settings.example.json zed/settings.json
-
-# fill in your credentials, then link it:
 ./install.sh
 ```
 
-`install.sh` is idempotent — safe to re-run. It skips `settings.json` when that file does not exist yet, so the first run still links `AGENTS.md` rather than leaving a dangling symlink. If a real file already exists where a symlink should go, it is moved aside to `<name>.backup-<timestamp>` rather than overwritten.
+Symlinks `agents/AGENTS.md` into the global instruction file each agent tool
+reads, so every one of them works from the same rules:
 
-## Zed settings
+| Tool | Destination |
+|---|---|
+| Claude Code | `~/.claude/CLAUDE.md` |
+| Zed | `~/.config/zed/AGENTS.md` |
+| Codex CLI | `~/.codex/AGENTS.md` |
+| Gemini CLI | `~/.gemini/GEMINI.md` |
+| Qwen Code | `~/.qwen/QWEN.md` |
+| opencode | `~/.config/opencode/AGENTS.md` |
+| Windsurf | `~/.codeium/windsurf/memories/global_rules.md` |
+| Cline | `~/Documents/Cline/Rules/AGENTS.md` |
 
-The live `~/.config/zed/settings.json` is **not tracked** — it contains credentials such as the GitHub MCP personal access token. `zed/settings.example.json` is a committed reference copy with those values replaced by placeholders.
+Claude Code and Zed are linked unconditionally. The rest are linked only if the
+tool's config directory already exists, so nothing leaves a stray directory
+behind for something that isn't installed; `--all` links them anyway. `--dry-run`
+prints the plan and changes nothing. Re-running is safe: a link already pointing
+at the right file is left alone, and a real file is backed up with a timestamp
+before being replaced.
 
-When you add a new credential to your settings, mirror the change into `zed/settings.example.json` with a placeholder value, so the reference copy does not drift out of date.
+Cursor, VS Code Copilot, Ollama and DeepSeek have no symlinkable global
+instruction file. The script prints what to do about each at the end.
 
-## How agent rules resolve
+The directory is named `agents/` rather than after any one provider, since every
+tool above reads the same file under a different name.
 
-Zed layers two levels of rules, both loaded automatically:
+## agents/AGENTS.md
 
-| Scope | File | Applies to |
-|---|---|---|
-| Global | `~/.config/zed/AGENTS.md` (this repo) | Every project |
-| Project | `<project-root>/AGENTS.md` | That project only |
+House rules: how I want work reported, validated, handed off and cleaned up, and
+how Linear tickets are handled on any board.
 
-Project rules take precedence where they conflict with the global ones.
-
-### Adding rules to a fresh project
-
-Create an `AGENTS.md` at the repo root:
-
-```bash
-cd /path/to/project
-touch AGENTS.md
-```
-
-Keep it to what is specific to *that* codebase — commands, architecture, conventions, workflow. Anything that would apply to every project belongs in the global file instead, so it is not duplicated into every context window.
-
-To check what is actually active, ask the agent in a fresh thread: *"which rule files have loaded?"*
-
-### Claude Code compatibility
-
-Claude Code looks for `CLAUDE.md`. To serve both tools from a single file, symlink it:
-
-```bash
-cd /path/to/project
-ln -s AGENTS.md CLAUDE.md
-```
-
-Git stores this as a symlink (mode `120000`), so it works for anyone who clones the repo. Zed resolves it to the same file and does not double-load the rules.
-
-## Not tracked here
-
-- `zed/settings.json` — contains credentials; use `zed/settings.example.json` as the starting point
-- `~/.config/zed/prompts/` — binary LMDB database, written live by Zed
-- `*.bak` and `*.backup-*` — local backups
-- Anything containing credentials
+Not in here: anything true of one project only, such as its repos, ports, paths,
+conventions, domain model, release process, Linear board or label set. Those live
+in that project's own `AGENTS.md`, which sits on top of this file and **wins** on
+any disagreement.

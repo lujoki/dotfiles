@@ -3,6 +3,7 @@ set -euo pipefail
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AGENTS="$DOTFILES/agents/AGENTS.md"
+SKILLS="$DOTFILES/agents/skills"
 
 DRY_RUN=0
 ALL=0
@@ -11,7 +12,8 @@ usage() {
   cat <<USAGE
 Usage: ./install.sh [--dry-run] [--all]
 
-Symlinks agents/AGENTS.md into the global instruction file each agent tool reads.
+Symlinks agents/AGENTS.md into the global instruction file each agent tool
+reads, and each directory in agents/skills into the tools that load skills.
 
   --dry-run   Print what would happen, change nothing
   --all       Also link tools that are not installed yet, creating their
@@ -83,7 +85,37 @@ link_if() {
   fi
 }
 
+# link_skills <tool label> <config dir to test> <skills dir>
+#
+# One symlink per skill rather than one for the whole directory: the
+# destination usually holds skills from elsewhere (plugins, a marketplace, ones
+# written in place), and linking the directory itself would hide all of them.
+link_skills() {
+  local label="$1" probe="$2" dest="$3"
+
+  echo "$label skills"
+
+  if [ ! -d "$SKILLS" ]; then
+    echo "  skipped         no agents/skills to link"
+    skipped=$((skipped + 1))
+    return
+  fi
+
+  if [ ! -d "$probe" ] && [ "$ALL" != 1 ]; then
+    echo "  skipped         $probe not found (--all to link anyway)"
+    skipped=$((skipped + 1))
+    return
+  fi
+
+  local skill
+  for skill in "$SKILLS"/*/; do
+    [ -d "$skill" ] || continue
+    link "${skill%/}" "$dest/$(basename "${skill%/}")"
+  done
+}
+
 echo "Source: $AGENTS"
+echo "Skills: $SKILLS"
 echo
 
 # Always linked: the two I actually use.
@@ -92,6 +124,8 @@ link "$AGENTS" "$HOME/.claude/CLAUDE.md"
 
 echo "Zed"
 link "$AGENTS" "$HOME/.config/zed/AGENTS.md"
+
+link_skills "Claude Code" "$HOME/.claude" "$HOME/.claude/skills"
 
 # Linked when the tool is installed. Each reads its own filename.
 link_if "Codex CLI"   "$HOME/.codex"           "$HOME/.codex/AGENTS.md"

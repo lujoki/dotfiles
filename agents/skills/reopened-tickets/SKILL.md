@@ -1,6 +1,6 @@
 ---
 name: reopened-tickets
-description: Triage and work through reopened Linear tickets on the Leap Engineering board. Use when asked what is reopened, to triage reopened tickets, to work through the reopened queue, or to pick up a specific reopened ticket. Produces a scannable table of what is back, why, and what should happen, then fixes tickets one at a time with a PR each. Covers challenging a QA note that does not warrant work, criteria QA structurally cannot test, and the traps specific to this codebase.
+description: Triage and work through reopened Linear tickets on the Leap Engineering board. Use when asked what is reopened, to triage reopened tickets, to work through the reopened queue, or to pick up a specific reopened ticket. Produces a scannable table of what is back, why, and what should happen, then fixes tickets one at a time with a PR each. Covers challenging a QA note that does not warrant work, the standing decisions on reopens QA cannot run, reopens needing real data on staging and criteria describing an earlier design, criteria QA structurally cannot test, and the traps specific to this codebase.
 ---
 
 # Working through reopened tickets
@@ -60,6 +60,53 @@ row to start with when severity disagrees with that order.
   original ticket, and probably should not be a reopen)
 - Anything too long for a cell goes in a short block under the table
 
+## Standing decisions
+
+Three kinds of reopen come up again and again, and Luke has already ruled on
+them. Classify every reopened item against these before reaching for a verdict.
+
+| Kind | What it looks like | Outcome |
+|---|---|---|
+| **QA cannot run it** | Job or script output, a scheduled run QA cannot trigger, a production-only path, Google admin, a CLI, a setting QA may not change, logic visible only in code | **Release Candidate with a note**, unless getting it wrong on production would seriously affect users. Then it stays held and the row says why |
+| **No data to test against** | The tester could not reach the state: no live tactics, no audit rows, no plan of the right shape | **Back to QA**, with a comment telling the tester to test on `staging.leap.aip.media` under the **AIP agency**. Unless every such item is immaterial, then **Release Candidate**. If staging cannot show it either, **Release Candidate** with the **Verify on Production** label (below) |
+| **The criterion describes an earlier design** | The tester tested to the wording, and a later round of amends changed the build | **Rewrite the criterion to the app as it now stands**, then back to QA. Never change code to match stale wording |
+
+**Serious user impact** means wrong money or figures a client relies on, people
+locked out or given access they should not have, data lost, or wrong content in
+front of a client. An internal summary count, internal-only noise, or something
+cosmetic that would be noticed and put right is **immaterial**.
+
+**Real data lives on `staging.leap.aip.media`, under the AIP agency.**
+`staging01.leap.aip.media` has almost none, which is why a tester working there
+reports "0 of 0" or "no rows". Name the agency and the host in the comment rather
+than asking for a fixture to be built.
+
+**Staging reads and writes production's database.** Viewing is safe. Anything
+the tester saves there (a check, a note, a follow-up, a setting, a webhook) is a
+real production record, and a webhook set there posts from production too. So
+before sending a ticket back to QA on staging, ask whether the retest means
+saving something.
+
+**When staging cannot verify it because of data**, either because the state does
+not exist there or because reaching it means writing real production records,
+move the ticket to **Release Candidate** and add the **Verify on Production**
+label. The comment says it is skipping straight to production verification,
+names each criterion nobody has exercised, and says what on production will
+show it (the digital team recording checks, a real webhook being set, older
+saved choices). Remove the label once it has been checked there. This does not
+cover a criterion whose data is missing because of a defect, such as a connector
+not loading: that is a Fix.
+
+**Mixed rows take the most conservative outcome**: anything still open (a real
+defect, a new finding, a Clarify) keeps the ticket in Reopened, then back to QA,
+then Release Candidate.
+
+In triage these still go in the table, with the outcome as the recommendation:
+**RC**, **Retest on staging** or **Restate**. They need no discussion row by row,
+so list them after the Challenge and Clarify rows and apply them in one pass once
+Luke says go. Rewriting a criterion follows the A/C cap in `AGENTS.md`: rewrite
+in place, never add, and keep the ticket within 10.
+
 ## Before writing any code, check whether the criterion is stale
 
 **This is the single highest-value check in the whole process.** In the sweep
@@ -94,8 +141,10 @@ changed", cross-agency isolation in a single-agency environment, script or job
 output, resolver scoping and guard coverage.
 
 **Not** code-level: anything visible given the right data. If QA cannot reach the
-state, that needs a **named fixture**, not a dev sign-off. Find one in the real
-data if you can, and hand over a URL:
+state, the first answer is `staging.leap.aip.media` under the AIP agency (see
+Standing decisions). Where even that will not show it, it needs a **named
+fixture**, not a dev sign-off. Find one in the real data if you can, and hand
+over a URL:
 
 - Query the warehouse (BigQuery, project `tech-aip-media`) for a row exhibiting
   the state, then resolve ids to slugs and titles through Mongo
@@ -168,6 +217,9 @@ Address the tester by name and tell them plainly:
 - The fixture or URL they need, if the criterion needs one
 
 Then: `Pull Request` when a PR is open, `QA` when it needs retesting, `Release
-Candidate` when it is accepted as done. Never edit or tick a criterion beyond
-what Luke asked for, and never quietly close a gap: an unmet criterion that is
-being accepted stays unticked, named in the comment.
+Candidate` when it is accepted as done, including under the standing decisions.
+Never edit or tick a criterion beyond what Luke asked for (rewriting a stale one
+under Standing decisions counts as asked), and never quietly close a gap: an
+unmet criterion that is being accepted stays unticked, named in the comment. A
+ticket moved to Release Candidate because QA cannot run something says, in the
+comment, which criteria nobody exercised and why that was judged acceptable.
